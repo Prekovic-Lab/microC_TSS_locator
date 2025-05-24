@@ -1,90 +1,89 @@
 import streamlit as st
 import pandas as pd
 
-# Streamlit page configuration (visually appealing layout)
-st.set_page_config(page_title="Gene Locator Portal", layout="wide")
+# Streamlit page setup
+st.set_page_config(page_title="Gene TSS Locator", layout="wide")
 
-# Title and description
-st.title("Prekovic Lab Gene TSS Portal for MicroC")
+# Main title and description
+st.title("🔬 Prekovic Lab Gene TSS Portal for MicroC")
 st.markdown("""
-Enter your gene list below, select the desired cell line, and click **Process**.  
-You'll receive a neatly formatted table showing the Transcription Start Sites (TSS) and Copy Numbers.
+Enter your gene list, select the desired cell line, and click **Process**.  
+The output table provides clearly formatted Transcription Start Sites (TSS) and copy numbers.
 """)
 
-# Load external CSV directly (your Dropbox direct link)
+# Load copy number data from Dropbox (direct link)
 cn_df = pd.read_csv(
     "https://www.dropbox.com/scl/fi/fpnvolwlhozzqyvu7qh3q/Omics_Absolute_CN_Gene_Public_24Q4_subsetted.csv?rlkey=tn5hwmm01u6ww29t2nv81cf54&st=rd7e84ex&dl=1"
 )
 
-# Load and filter mart_export.txt based on Ensembl Canonical == 1
+# Load and filter mart data (Ensembl Canonical == 1)
 mart_df = pd.read_csv("mart_export.txt", sep='\t')
 mart_df = mart_df[mart_df["Ensembl Canonical"] == 1][['Gene name', 'Transcription start site (TSS)', 'Strand']].dropna()
 mart_df.columns = ['Gene', 'TSS', 'Strand']
 
-# User inputs (visually appealing sections)
-with st.sidebar:
-    st.header("Input Options")
-    gene_input = st.text_area("📋 Paste gene list (one per line):", height=250)
-    cell_line = st.selectbox("🧬 Select Cell Line:", cn_df.columns[1:])
-    process_button = st.button("🚀 Process")
+# Inputs clearly visible without sidebar
+gene_input = st.text_area("📋 Paste your gene list (one gene per line):", height=200)
+cell_line = st.selectbox("🧬 Select Cell Line:", cn_df.columns[1:])
+process_button = st.button("🚀 Process")
 
-# Main content processing
+# Process data after clicking the button
 if process_button:
     gene_list = [gene.strip() for gene in gene_input.splitlines() if gene.strip()]
     
-    # Match genes with mart_df
+    # Match gene data from Mart export
     gene_data = mart_df[mart_df['Gene'].isin(gene_list)].copy()
 
-    # Adjust TSS based on strand direction (+ or -)
+    # Adjust TSS based on strand orientation
     gene_data['Adjusted TSS'] = gene_data.apply(
         lambda row: row['TSS'] if row['Strand'] == 1 else f"-{row['TSS']}", axis=1
     )
 
-    # Extract copy number data
+    # Retrieve copy numbers for selected cell line
     cn_subset = cn_df[cn_df['Gene'].isin(gene_list)][['Gene', cell_line]]
     cn_subset.columns = ['Gene', 'Copy Number']
 
-    # Merge dataframes and clearly indicate missing values
+    # Merge into one dataframe, clearly mark missing values
     final_df = pd.merge(gene_data, cn_subset, on='Gene', how='left').fillna('N/A')
 
-    # Improved highlighting for copy numbers
+    # Color highlighting based on copy number
     def highlight_copy_number(val):
         try:
             val_float = float(val)
             if val_float > 5:
-                color = '#FF6666'  # Strong Red for high values
+                color = '#FF6666'  # High: Red
             elif val_float < 2:
-                color = '#66CC66'  # Strong Green for low values
+                color = '#66CC66'  # Low: Green
             else:
-                color = '#FFDD44'  # Yellow for intermediate
+                color = '#FFDD44'  # Intermediate: Yellow
             return f'background-color: {color}; color: black'
         except:
-            return 'background-color: #EEEEEE; color: #AAAAAA'  # Grey for N/A
+            return 'background-color: #DDDDDD; color: #666666'  # N/A: Grey
 
+    # Styling dataframe
     styled_df = final_df[['Gene', 'Adjusted TSS', 'Copy Number']].style.applymap(
         highlight_copy_number, subset=['Copy Number']
     ).set_properties(**{
-        'border': '1px solid black',
+        'border': '1px solid #888888',
         'padding': '6px',
         'text-align': 'center'
     })
 
-    # Display final dataframe with attractive formatting
-    st.subheader("📌 Results:")
+    # Display styled dataframe
+    st.subheader("📌 Results")
     st.dataframe(styled_df, use_container_width=True, height=500)
 
-    # Offer CSV download option for convenience
+    # Provide CSV download
     csv = final_df.to_csv(index=False).encode('utf-8')
     st.download_button(
-        "⬇️ Download Results as CSV",
-        csv,
-        "gene_results.csv",
-        "text/csv",
-        key='download-csv'
+        label="⬇️ Download Results as CSV",
+        data=csv,
+        file_name="gene_results.csv",
+        mime="text/csv"
     )
+
 else:
-    st.info("ℹ️ Awaiting your input. Enter genes, select a cell line, then hit **Process**!")
+    st.info("ℹ️ Please input your gene list, select a cell line, and click **Process**.")
 
 # Footer
 st.markdown("---")
-st.markdown("🔗 [Prekovic Lab Website](https://www.prekovic-lab.org/) | ✉️ [Contact](mailto:s.prekovic@umcutrecht.nl)")
+st.markdown("🔗 [Prekovic Lab](https://www.prekovic-lab.org/) | ✉️ [Contact](mailto:s.prekovic@umcutrecht.nl)")
