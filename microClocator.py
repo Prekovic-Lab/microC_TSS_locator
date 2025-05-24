@@ -3,7 +3,7 @@ import pandas as pd
 
 st.set_page_config(page_title="Prekovic Lab Gene TSS Portal", layout="wide")
 
-st.title("🔬 Prekovic Lab Gene TSS Portal for MicroC")
+st.title("Prekovic Lab Gene TSS Portal for MicroC")
 st.write("""
 Paste your genes below, select a cell line, and click **Process**.  
 The resulting table shows Transcription Start Sites (TSS) and copy numbers.
