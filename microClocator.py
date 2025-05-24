@@ -4,7 +4,7 @@ import pandas as pd
 st.title("Lab Gene Portal")
 
 # Load external CSV directly
-cn_df = pd.read_csv("https://drive.google.com/uc?id=14YLHm_7oeoL6SK2lSrgPYoASggkGvkdh&export=download")
+cn_df = pd.read_csv("https://www.dropbox.com/scl/fi/fpnvolwlhozzqyvu7qh3q/Omics_Absolute_CN_Gene_Public_24Q4_subsetted.csv?rlkey=tn5hwmm01u6ww29t2nv81cf54&st=2irfo9lp&dl=0")
 
 mart_df = pd.read_csv("mart_export.txt", sep='\t')
 mart_df = mart_df[['Gene name', 'Transcription start site (TSS)', 'Strand']].dropna()
