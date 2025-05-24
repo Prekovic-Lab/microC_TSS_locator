@@ -13,7 +13,7 @@ Paste your genes below, select a cell line, and click **Process** to get the Tra
 # Load data files
 @st.cache_data
 def load_data():
-    cn_url = "https://www.dropbox.com/scl/fi/fpnvolwlhozzqyvu7qh3q/Omics_Absolute_CN_Gene_Public_24Q4_subsetted.csv?rlkey=tn5hwmm01u6ww29t2nv81cf54&st=rd7e84ex&dl=1"
+    cn_df = pd.read_csv("https://www.dropbox.com/scl/fi/h8rvomentntucg2olvjhu/Omics_Absolute_CN_Gene_Public_24Q4_subsetted_SP.csv?rlkey=w62hf178700cceg6hvqcydcjh&st=4g0q37cf&dl=1")
     cn_df = pd.read_csv(cn_url)
     mart_df = pd.read_csv("mart_export.txt", sep='\t')
     mart_df = mart_df[mart_df["Ensembl Canonical"] == 1][['Gene name', 'Transcription start site (TSS)', 'Strand']].dropna()
