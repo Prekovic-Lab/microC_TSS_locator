@@ -4,6 +4,8 @@
 
 **MicroC Finder** is a streamlined web application developed specifically for the **Prekovic Lab**, designed for rapid retrieval and visualization of **Transcription Start Sites (TSS)** and **Absolute Copy Numbers** for user-provided genes across various cell lines.
 
+**Access via this link** -> https://microcfinder.streamlit.app
+
 ---
 
 ## Features
