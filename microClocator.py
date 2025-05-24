@@ -1,28 +1,21 @@
 import streamlit as st
 import pandas as pd
 
-# Page configuration
 st.set_page_config(page_title="Prekovic Lab Gene TSS Portal", layout="wide")
 
-# Title and intro
 st.title("🔬 Prekovic Lab Gene TSS Portal for MicroC")
 st.write("""
-Paste your genes below, select a cell line, and click **Process** to get the Transcription Start Sites (TSS) and copy numbers.
+Paste your genes below, select a cell line, and click **Process**.  
+The resulting table shows Transcription Start Sites (TSS) and copy numbers.
 """)
 
-# Load data files
-@st.cache_data
-def load_data():
-    cn_df = pd.read_csv("https://www.dropbox.com/scl/fi/h8rvomentntucg2olvjhu/Omics_Absolute_CN_Gene_Public_24Q4_subsetted_SP.csv?rlkey=w62hf178700cceg6hvqcydcjh&st=4g0q37cf&dl=1")
-    cn_df = pd.read_csv(cn_url)
-    mart_df = pd.read_csv("mart_export.txt", sep='\t')
-    mart_df = mart_df[mart_df["Ensembl Canonical"] == 1][['Gene name', 'Transcription start site (TSS)', 'Strand']].dropna()
-    mart_df.columns = ['Gene', 'TSS', 'Strand']
-    return cn_df, mart_df
+# Load local data files from GitHub repo (ensure files exist!)
+cn_df = pd.read_csv("GeneCount.csv")
 
-cn_df, mart_df = load_data()
+mart_df = pd.read_csv("mart_export.txt", sep='\t')
+mart_df = mart_df[mart_df["Ensembl Canonical"] == 1][['Gene name', 'Transcription start site (TSS)', 'Strand']].dropna()
+mart_df.columns = ['Gene', 'TSS', 'Strand']
 
-# User input fields
 gene_input = st.text_area("📋 Paste gene list (one per line)", height=200)
 cell_line = st.selectbox("🧬 Select Cell Line", cn_df.columns[1:])
 
@@ -39,7 +32,6 @@ if st.button("🚀 Process"):
 
     final_df = pd.merge(gene_data, cn_subset, on='Gene', how='left').fillna('N/A')
 
-    # Styling function
     def highlight_copy_number(val):
         try:
             val_float = float(val)
@@ -70,8 +62,7 @@ if st.button("🚀 Process"):
         mime="text/csv"
     )
 else:
-    st.info("ℹ️ Enter your genes above, select a cell line, and click **Process**.")
+    st.info("ℹ️ Enter genes, select cell line, and click **Process**.")
 
-# Footer
 st.markdown("---")
 st.markdown("🔗 [Prekovic Lab](https://www.prekovic-lab.org) | ✉️ [Contact](mailto:s.prekovic@umcutrecht.nl)")
